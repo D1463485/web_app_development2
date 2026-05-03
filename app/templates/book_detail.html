@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title %}{{ book.title }} - 讀書筆記本{% endblock %}
+
+{% block content %}
+<div class="mb-3">
+    <a href="{{ url_for('book.index') }}" class="text-decoration-none"><i class="bi bi-arrow-left"></i> 返回書架</a>
+</div>
+
+<div class="row">
+    <!-- 左側書籍資訊 -->
+    <div class="col-md-4 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h3 class="card-title">{{ book.title }}</h3>
+                <h6 class="card-subtitle mb-4 text-muted">{{ book.author if book.author else '未知作者' }}</h6>
+                
+                <form action="{{ url_for('book.update_status', id=book.id) }}" method="POST" class="mb-4">
+                    <label class="form-label text-muted small fw-bold">目前的閱讀狀態</label>
+                    <select class="form-select border-primary" name="status" onchange="this.form.submit()">
+                        <option value="unread" {{ 'selected' if book.status == 'unread' else '' }}>未讀</option>
+                        <option value="reading" {{ 'selected' if book.status == 'reading' else '' }}>在讀中</option>
+                        <option value="finished" {{ 'selected' if book.status == 'finished' else '' }}>已完讀</option>
+                    </select>
+                </form>
+
+                <hr>
+
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('book.edit_book', id=book.id) }}" class="btn btn-outline-primary"><i class="bi bi-pencil-square"></i> 編輯書籍資訊</a>
+                    <form action="{{ url_for('book.delete_book', id=book.id) }}" method="POST" onsubmit="return confirm('警告：確定要刪除這本書及所有的筆記嗎？此操作無法復原。');">
+                        <button type="submit" class="btn btn-outline-danger w-100"><i class="bi bi-trash"></i> 刪除這本書</button>
+                    </form>
+                </div>
+            </div>
+            <div class="card-footer text-muted small text-center bg-light">
+                建立於 {{ book.created_at[:16] }}
+            </div>
+        </div>
+    </div>
+
+    <!-- 右側分段筆記 -->
+    <div class="col-md-8">
+        <div class="card mb-4 shadow-sm border-primary">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="bi bi-journal-plus"></i> 新增筆記</h5>
+            </div>
+            <div class="card-body">
+                <form action="{{ url_for('note.create_note', book_id=book.id) }}" method="POST">
+                    <div class="mb-3">
+                        <textarea class="form-control" name="content" rows="3" placeholder="寫下精采語錄、心得或疑問..." required></textarea>
+                    </div>
+                    <div class="text-end">
+                        <button type="submit" class="btn btn-primary"><i class="bi bi-send"></i> 送出筆記</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="mb-0">筆記列表</h5>
+            <span class="badge bg-secondary rounded-pill">{{ notes|length }} 則</span>
+        </div>
+        
+        {% if notes %}
+            <div class="d-flex flex-column gap-3">
+            {% for note in notes %}
+                <div class="card shadow-sm border-0 bg-white">
+                    <div class="card-body">
+                        <p class="card-text fs-5" style="white-space: pre-wrap; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;">{{ note.content }}</p>
+                        <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top">
+                            <small class="text-muted"><i class="bi bi-clock"></i> {{ note.created_at[:16] }}</small>
+                            <form action="{{ url_for('note.delete_note', id=note.id) }}" method="POST" onsubmit="return confirm('確定要刪除這則筆記嗎？');">
+                                <button type="submit" class="btn btn-sm btn-outline-danger border-0"><i class="bi bi-trash"></i> 刪除</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+            </div>
+        {% else %}
+            <div class="alert alert-light text-center border p-5 mt-3">
+                <i class="bi bi-journal-text fs-1 text-muted d-block mb-3"></i>
+                <h5 class="text-muted">目前還沒有筆記</h5>
+                <p class="mb-0 text-secondary">快在上方寫下你的第一個感想吧！</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

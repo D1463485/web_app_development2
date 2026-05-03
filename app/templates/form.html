@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}{{ '編輯書籍' if mode == 'edit' else '新增書籍' }} - 讀書筆記本{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h4 class="mb-0">{{ '編輯書籍' if mode == 'edit' else '新增書籍' }}</h4>
+            </div>
+            <div class="card-body">
+                <form action="{{ url_for('book.update_book', id=book.id) if mode == 'edit' else url_for('book.create_book') }}" method="POST">
+                    <div class="mb-3">
+                        <label for="title" class="form-label">書名 <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="title" name="title" value="{{ book.title if book else '' }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="author" class="form-label">作者</label>
+                        <input type="text" class="form-control" id="author" name="author" value="{{ book.author if book else '' }}">
+                    </div>
+                    {% if mode == 'edit' %}
+                    <div class="mb-3">
+                        <label for="status" class="form-label">閱讀狀態</label>
+                        <select class="form-select" id="status" name="status">
+                            <option value="unread" {{ 'selected' if book.status == 'unread' else '' }}>未讀</option>
+                            <option value="reading" {{ 'selected' if book.status == 'reading' else '' }}>在讀中</option>
+                            <option value="finished" {{ 'selected' if book.status == 'finished' else '' }}>已完讀</option>
+                        </select>
+                    </div>
+                    {% endif %}
+                    <div class="d-flex justify-content-end gap-2 mt-4">
+                        <a href="{{ url_for('book.book_detail', id=book.id) if mode == 'edit' else url_for('book.index') }}" class="btn btn-outline-secondary">取消</a>
+                        <button type="submit" class="btn btn-primary">{{ '儲存變更' if mode == 'edit' else '新增書籍' }}</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

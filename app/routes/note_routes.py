@@ -1,4 +1,5 @@
 from flask import Blueprint, request, redirect, url_for, flash
+from app.models.note import Note
 
 note_bp = Blueprint('note', __name__)
 
@@ -10,7 +11,14 @@ def create_note(book_id):
     邏輯: 將筆記內容寫入資料庫
     輸出: 重導向至書籍詳情頁
     """
-    pass
+    content = request.form.get('content', '').strip()
+    if not content:
+        flash('筆記內容不能為空', 'error')
+    else:
+        Note.create(book_id, content)
+        flash('筆記新增成功', 'success')
+        
+    return redirect(url_for('book.book_detail', id=book_id))
 
 @note_bp.route('/notes/<int:id>/delete', methods=['POST'])
 def delete_note(id):
@@ -20,4 +28,12 @@ def delete_note(id):
     邏輯: 從資料庫刪除筆記
     輸出: 重導向至原書籍的詳情頁
     """
-    pass
+    note = Note.get_by_id(id)
+    if note:
+        book_id = note['book_id']
+        Note.delete(id)
+        flash('筆記刪除成功', 'success')
+        return redirect(url_for('book.book_detail', id=book_id))
+    else:
+        flash('找不到該筆記', 'error')
+        return redirect(url_for('book.index'))

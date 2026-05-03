@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}我的書架 - 讀書筆記本{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>我的書架</h2>
+    <a href="{{ url_for('book.new_book') }}" class="btn btn-primary"><i class="bi bi-plus-lg"></i> 新增書籍</a>
+</div>
+
+{% if books %}
+<div class="row row-cols-1 row-cols-md-3 g-4">
+    {% for book in books %}
+    <div class="col">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title text-truncate">{{ book.title }}</h5>
+                <h6 class="card-subtitle mb-2 text-muted">{{ book.author if book.author else '未知作者' }}</h6>
+                <p class="card-text">
+                    {% if book.status == 'unread' %}
+                        <span class="badge bg-secondary">未讀</span>
+                    {% elif book.status == 'reading' %}
+                        <span class="badge bg-warning text-dark">在讀中</span>
+                    {% else %}
+                        <span class="badge bg-success">已完讀</span>
+                    {% endif %}
+                </p>
+                <a href="{{ url_for('book.book_detail', id=book.id) }}" class="btn btn-sm btn-outline-primary stretched-link">查看詳情</a>
+            </div>
+            <div class="card-footer text-muted text-end" style="font-size: 0.8rem;">
+                新增於: {{ book.created_at[:10] }}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="text-center py-5">
+    <h3 class="text-muted">目前書架是空的</h3>
+    <p>快來新增你的第一本書吧！</p>
+    <a href="{{ url_for('book.new_book') }}" class="btn btn-primary">新增書籍</a>
+</div>
+{% endif %}
+{% endblock %}
